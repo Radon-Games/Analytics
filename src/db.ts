@@ -1,4 +1,3 @@
-import Data from "./Data";
 import Database from "better-sqlite3";
 import * as uuid from "uuid";
 
@@ -17,11 +16,7 @@ export default class DB {
     this.#id = applicationId.replace(/-/g, "");
   }
 
-  addView (data: Data): void {
-    if (!(data instanceof Data)) {
-      throw new TypeError("data is not a valid instance of Data");
-    }
-
+  addView (data: any): void {
     const createTable = db.prepare(`CREATE TABLE IF NOT EXISTS _${this.#id} (
       userId TEXT,
       sessionId TEXT,
@@ -34,11 +29,12 @@ export default class DB {
       ip TEXT,
       ua TEXT,
       loadingTime INTEGER,
-      dataTransfer INTEGER
+      dataTransfer INTEGER,
+      memory INTEGER
     )`);
     createTable.run();
     
-    const addData = db.prepare(`INSERT INTO _${this.#id} (userId, sessionId, url, referer, pageTitle, language, startTime, closeTime, ip, ua, loadingTime, dataTransfer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`);
-    addData.run(data.userId, data.sessionId, data.url, data.referer, data.pageTitle, data.language, data.startTime, data.closeTime, data.ip, data.ua, data.loadingTime, data.dataTransfer);
+    const addData = db.prepare(`INSERT INTO _${this.#id} (userId, sessionId, url, referer, pageTitle, language, startTime, closeTime, ip, ua, loadingTime, dataTransfer, memory) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`);
+    addData.run(data.userId, data.sessionId, data.url, data.referer, data.pageTitle, data.language, data.startTime, data.closeTime, data.ip, data.ua, data.loadingTime, data.dataTransfer, data.memory);
   }
 }

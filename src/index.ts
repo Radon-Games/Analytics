@@ -13,7 +13,7 @@ const wsInstance = expressWs(app);
 
 app.use(express.static(path.join(DIRNAME, "test")));
 
-app.ws("/send", wsHandler(wsInstance) as any);
+app.ws("/ws", wsHandler(wsInstance) as any);
 
 app.listen(PORT, (): void => {
   log(chalk.bgRed.white(`Analytics listening on port ${PORT}`));

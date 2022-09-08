@@ -26,13 +26,15 @@
   });
 
   function count () {
-    const viewId = Math.random().toString(36).slice(2);
-    const view = new View();
+    const viewId = uuidv4();
+    const view = new View(viewId);
     views.set(viewId, view);
     view.send();
   }
 
   class View {
+    viewId;
+    applicationId;
     userId;
     sessionId;
     url;
@@ -42,7 +44,9 @@
     loadingTime;
     memory;
 
-    constructor () {
+    constructor (id) {
+      this.viewId = id || uuidv4();
+      this.applicationId = window._R.applicationId;
       this.userId = getUserId();
       this.sessionId = getSessionId();
       this.url = location.href;
@@ -50,11 +54,18 @@
       this.pageTitle = document.title;
       this.language = navigator.language;
       this.loadingTime = performance.timing.domContentLoadedEventEnd - performance.timing.navigationStart;
+      this.dataTransfer = performance.getEntriesByType("resource").reduce((acc, curr) => {
+        if (!curr.transferSize) return;
+        return acc + curr.transferSize;
+      }, 0);
       this.memory = performance.memory.usedJSHeapSize;
     }
 
     send () {
-      ws.send(["view", JSON.stringify(Object.assign({}, this))]);
+      if (views.length === 0) {
+        ws.send(JSON.stringify(["close"]))
+      }
+      ws.send(JSON.stringify(["view", Object.assign({}, this)]));
     }
   }
 
