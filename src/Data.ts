@@ -4,10 +4,10 @@ import { v4 } from "uuid";
 export default class Data {
   userId: string;                // User specific UUID used to identify a new user
   sessionId: string;             // Session specific UUID used to identify a new session
-  urlPath: string = "/";         // URL path of the page the user is on (e.g. /about)
-  host: string = "";             // Host domain of the page (e.g. example.com)
-  referer: string = "";          // Referer URL of the page (if any)
-  language: string = "";         // Language of the page (e.g. en-US)
+  url: string = "";              // URL of the page used for page specific analytics
+  referer: string = "";          // Referer URL of the page (if any) used for site sharing analytics
+  pageTitle: string = "";        // Title of the page (if any) used for page specific analytics
+  language: string = "";         // Language of the page (e.g. en-US) used for demographic analysisnalysis
   startTime: number;             // Websocket open time used for calculating time on page
   closeTime?: number;            // Websocket closed time used for calculating time on page
   ip: string;                    // IP address of the client used for geolocation
