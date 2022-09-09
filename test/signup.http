@@ -1,0 +1,8 @@
+POST http://localhost:2525/api/signup HTTP/1.1
+content-type: application/json
+authorization: Basic YWRtaW46YWRtaW4=
+
+{
+  "email": "admin",
+  "password": "password"
+}

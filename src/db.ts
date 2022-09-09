@@ -16,7 +16,56 @@ export default class DB {
     this.#id = applicationId.replace(/-/g, "");
   }
 
+  checkAuth (token: string): boolean {
+    const createTable = db.prepare(`CREATE TABLE IF NOT EXISTS users (
+      email TEXT,
+      password TEXT,
+      token TEXT,
+      applications TEXT
+    )`);
+    const checkAuth = db.prepare(`SELECT * FROM users WHERE token = ?`);
+    const row = checkAuth.get(token);
+    return !!row;
+  }
+
+  getApplications (token: string): any {
+    this.#createUserTable();
+
+    const getApplications = db.prepare(`SELECT applications FROM users WHERE token = ?`);
+    const row = getApplications.get(token);
+    try {
+      return JSON.parse(row.applications);
+    } catch {
+      return [];
+    }
+  }
+
+  getViews (timeStart: number, timeEnd: number): any {
+    this.#createApplicationTable();
+
+    const getViews = db.prepare(`SELECT * FROM _${this.#id} WHERE startTime >= ? AND startTime <= ?`);
+    const rows = getViews.all(timeStart, timeEnd);
+    return rows ?? [];
+  }
+
   addView (data: any): void {
+    this.#createApplicationTable();
+    
+    const addData = db.prepare(`INSERT INTO _${this.#id} (userId, sessionId, url, referer, pageTitle, language, startTime, closeTime, ip, ua, loadingTime, dataTransfer, memory) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`);
+    addData.run(data.userId, data.sessionId, data.url, data.referer, data.pageTitle, data.language, data.startTime, data.closeTime, data.ip, data.ua, data.loadingTime, data.dataTransfer, data.memory);
+  }
+
+  #createUserTable (): void {
+    const createTable = db.prepare(`CREATE TABLE IF NOT EXISTS users (
+      email TEXT,
+      password TEXT,
+      token TEXT,
+      applications TEXT
+    )`);
+    createTable.run();
+  }
+
+  #createApplicationTable (): void {
     const createTable = db.prepare(`CREATE TABLE IF NOT EXISTS _${this.#id} (
       userId TEXT,
       sessionId TEXT,
@@ -33,8 +82,5 @@ export default class DB {
       memory INTEGER
     )`);
     createTable.run();
-    
-    const addData = db.prepare(`INSERT INTO _${this.#id} (userId, sessionId, url, referer, pageTitle, language, startTime, closeTime, ip, ua, loadingTime, dataTransfer, memory) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`);
-    addData.run(data.userId, data.sessionId, data.url, data.referer, data.pageTitle, data.language, data.startTime, data.closeTime, data.ip, data.ua, data.loadingTime, data.dataTransfer, data.memory);
   }
 }
